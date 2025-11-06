@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, FileEdit, Link, FileText, Plug } from 'lucide-react';
+import { Plus, FileEdit, Link, FileText } from 'lucide-react';
 import { Source } from '@/pages/Index';
 import NoteModal from './NoteModal';
 import LinkModal from './LinkModal';
@@ -70,12 +70,6 @@ const AddItemDropdown = ({ sources, setSources }: AddItemDropdownProps) => {
     input.click();
   };
 
-  const handleConnect = () => {
-    toast({
-      title: "Coming soon",
-      description: "Integration features will be available soon"
-    });
-  };
 
   return (
     <>
@@ -108,14 +102,6 @@ const AddItemDropdown = ({ sources, setSources }: AddItemDropdownProps) => {
             <div className="flex flex-col">
               <span className="font-medium">File</span>
               <span className="text-xs text-muted-foreground">Upload any file</span>
-            </div>
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem onClick={handleConnect}>
-            <Plug className="mr-2 h-4 w-4" />
-            <div className="flex flex-col">
-              <span className="font-medium">Connect</span>
-              <span className="text-xs text-muted-foreground">Connect to your favorite apps</span>
             </div>
           </DropdownMenuItem>
         </DropdownMenuContent>
