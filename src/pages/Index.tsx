@@ -73,15 +73,17 @@ const Index = () => {
   return (
     <div className="h-screen flex flex-col bg-background">
       {/* Header */}
-      <header className="h-14 bg-secondary border-b border-border flex items-center justify-between px-4">
+      <header className="h-14 bg-[hsl(var(--header-bg))] text-[hsl(var(--header-fg))] border-b border-border flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">
-              N
+            <div className="w-6 h-6 text-primary">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+              </svg>
             </div>
-            <span className="text-sm font-medium text-muted-foreground">NotebookLM</span>
+            <span className="text-sm font-semibold">NotebookLM</span>
           </div>
-          <div className="w-px h-6 bg-border" />
+          <div className="w-px h-6 bg-border/30" />
           {isEditingTitle ? (
             <input
               type="text"
@@ -89,24 +91,28 @@ const Index = () => {
               onChange={(e) => setNotebookTitle(e.target.value)}
               onBlur={() => setIsEditingTitle(false)}
               onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
-              className="text-sm font-medium bg-transparent border-b border-primary outline-none px-1"
+              className="text-sm font-medium bg-transparent border-b border-primary outline-none px-1 text-foreground"
               autoFocus
             />
           ) : (
             <button
               onClick={() => setIsEditingTitle(true)}
-              className="text-sm font-medium hover:text-foreground transition-colors"
+              className="text-sm font-medium hover:opacity-80 transition-opacity"
             >
               {notebookTitle}
             </button>
           )}
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
+        <div className="flex items-center gap-3">
+          <span className="text-xs opacity-70">All changes saved</span>
+          <Button variant="ghost" size="sm" className="text-[hsl(var(--header-fg))] hover:bg-white/10">
+            Share
+          </Button>
+          <Button variant="ghost" size="icon" className="text-[hsl(var(--header-fg))] hover:bg-white/10">
             <Settings className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="text-[hsl(var(--header-fg))] hover:bg-white/10">
             <Grid3x3 className="h-4 w-4" />
           </Button>
           <div className="w-8 h-8 bg-[#FF6B35] rounded-full flex items-center justify-center text-white text-sm font-medium">

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, ChevronLeft, Search } from 'lucide-react';
 import { Source } from '@/pages/Index';
-import AddItemDropdown from './AddItemDropdown';
+import UploadSourcesModal from './UploadSourcesModal';
 import SourceItem from './SourceItem';
 
 interface SourcesPanelProps {
@@ -22,6 +22,7 @@ const SourcesPanel = ({
   onTogglePanel
 }: SourcesPanelProps) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   const filteredSources = sources.filter(source =>
     source.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -40,13 +41,25 @@ const SourcesPanel = ({
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-medium">Sources</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-medium">Sources</h2>
+            <span className="text-xs bg-muted px-2 py-0.5 rounded-full">
+              {sources.length}
+            </span>
+          </div>
           <Button variant="ghost" size="icon" onClick={onTogglePanel}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
         </div>
         
-        <AddItemDropdown sources={sources} setSources={setSources} />
+        <Button 
+          className="w-full justify-start gap-2" 
+          variant="secondary"
+          onClick={() => setShowUploadModal(true)}
+        >
+          <Plus className="h-4 w-4" />
+          Add
+        </Button>
       </div>
 
       {/* Search */}
@@ -72,7 +85,7 @@ const SourcesPanel = ({
               </svg>
             </div>
             <p className="text-sm font-medium mb-1">Saved sources will appear here</p>
-            <p className="text-xs text-muted-foreground">Click Add Item above to add notes, links, or files</p>
+            <p className="text-xs text-muted-foreground">Click Add source above to add PDFs, websites, text, videos or audio files. Or import a file directly from Google Drive.</p>
           </div>
         ) : (
           <div className="p-2 space-y-1">
@@ -88,6 +101,13 @@ const SourcesPanel = ({
           </div>
         )}
       </div>
+
+      <UploadSourcesModal
+        open={showUploadModal}
+        onOpenChange={setShowUploadModal}
+        sources={sources}
+        setSources={setSources}
+      />
     </div>
   );
 };

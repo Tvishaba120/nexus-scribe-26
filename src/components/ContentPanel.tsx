@@ -1,8 +1,10 @@
-import { FileUp } from 'lucide-react';
+import { useState } from 'react';
+import { Upload } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Source } from '@/pages/Index';
-import NoteViewer from './NoteViewer';
-import LinkViewer from './LinkViewer';
-import FileViewer from './FileViewer';
+import UploadSourcesModal from './UploadSourcesModal';
+import SourcePreview from './SourcePreview';
+import ChatSection from './ChatSection';
 
 interface ContentPanelProps {
   selectedSource?: Source;
@@ -11,45 +13,51 @@ interface ContentPanelProps {
 }
 
 const ContentPanel = ({ selectedSource, sources, setSources }: ContentPanelProps) => {
+  const [showUploadModal, setShowUploadModal] = useState(false);
+
   if (!selectedSource) {
     return (
       <div className="h-full flex flex-col items-center justify-center text-center px-6">
-        <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
-          <FileUp className="w-10 h-10 text-muted-foreground" />
+        <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
+          <Upload className="w-12 h-12 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-medium mb-2">Select a source to view</h3>
-        <p className="text-sm text-muted-foreground max-w-sm">
-          Choose a note, link, or file from the left panel to start exploring
+        <h3 className="text-2xl font-medium mb-3">Add a source to get started</h3>
+        <p className="text-sm text-muted-foreground max-w-md mb-6">
+          Upload documents, add links, or Note to begin
         </p>
+        <Button onClick={() => setShowUploadModal(true)}>
+          Upload a source
+        </Button>
+        
+        <UploadSourcesModal
+          open={showUploadModal}
+          onOpenChange={setShowUploadModal}
+          sources={sources}
+          setSources={setSources}
+        />
       </div>
     );
   }
 
   return (
-    <div className="h-full">
-      {selectedSource.type === 'note' && (
-        <NoteViewer 
+    <div className="h-full flex flex-col">
+      {/* Source Preview */}
+      <div className="border-b border-border">
+        <SourcePreview 
           source={selectedSource}
           sources={sources}
           setSources={setSources}
         />
-      )}
-      
-      {selectedSource.type === 'link' && (
-        <LinkViewer 
+      </div>
+
+      {/* Chat Section */}
+      <div className="flex-1 overflow-hidden">
+        <ChatSection
           source={selectedSource}
           sources={sources}
           setSources={setSources}
         />
-      )}
-      
-      {selectedSource.type === 'file' && (
-        <FileViewer 
-          source={selectedSource}
-          sources={sources}
-          setSources={setSources}
-        />
-      )}
+      </div>
     </div>
   );
 };

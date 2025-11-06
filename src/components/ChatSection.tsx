@@ -91,71 +91,75 @@ const ChatSection = ({ source, sources, setSources }: ChatSectionProps) => {
   };
 
   return (
-    <div className="border-t border-border bg-card">
-      <div className="max-w-4xl mx-auto p-4">
+    <div className="flex flex-col h-full bg-background">
+      {/* Chat History */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4" ref={messagesEndRef}>
         {/* Chat Messages */}
-        {source.chatHistory && source.chatHistory.length > 0 && (
-          <div className="mb-4 max-h-[300px] overflow-y-auto space-y-3">
-            {source.chatHistory.map((msg) => (
+        {source.chatHistory && source.chatHistory.length > 0 ? (
+          source.chatHistory.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
               <div
-                key={msg.id}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                  msg.role === 'user'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card border border-border shadow-sm'
+                }`}
               >
-                <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                    msg.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                  }`}
-                >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                </div>
+                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
               </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-muted rounded-lg px-4 py-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
-
-        {/* Suggested Questions */}
-        {(!source.chatHistory || source.chatHistory.length === 0) && (
-          <div className="mb-3 flex flex-wrap gap-2">
+            </div>
+          ))
+        ) : (
+          <div className="flex flex-wrap gap-2 justify-center">
             {suggestedQuestions.map((question, idx) => (
               <Button
                 key={idx}
                 variant="outline"
                 size="sm"
                 onClick={() => handleSuggestedQuestion(question)}
-                className="text-xs"
+                className="rounded-full"
               >
                 {question}
               </Button>
             ))}
           </div>
         )}
+        
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-card border border-border rounded-2xl px-4 py-3 shadow-sm">
+              <Loader2 className="h-4 w-4 animate-spin" />
+            </div>
+          </div>
+        )}
+      </div>
 
-        {/* Input */}
-        <div className="flex gap-2">
-          <Input
-            placeholder={`Ask anything about this ${source.type}...`}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            disabled={isLoading}
-          />
-          <Button 
-            onClick={handleSendMessage} 
-            disabled={!message.trim() || isLoading}
-            size="icon"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+      {/* Input Area */}
+      <div className="border-t border-border p-4 bg-card">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-2 text-xs text-muted-foreground text-center">
+            Based on {sources.length} {sources.length === 1 ? 'source' : 'sources'}
+          </div>
+          <div className="flex gap-2">
+            <Input
+              placeholder={`Ask anything about ${source.name}...`}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+              disabled={isLoading}
+              className="flex-1"
+            />
+            <Button 
+              onClick={handleSendMessage} 
+              disabled={!message.trim() || isLoading}
+              size="icon"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
