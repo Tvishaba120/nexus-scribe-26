@@ -1,8 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Loader2 } from 'lucide-react';
-import { Source, ChatMessage } from '@/pages/Index';
+import { Send, Loader2, Sparkles } from 'lucide-react';
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+export interface Source {
+  id: string;
+  name: string;
+  type: string;
+  content: string;
+  preview?: string;
+  chatHistory?: ChatMessage[];
+}
 
 interface ChatSectionProps {
   source: Source;
@@ -39,7 +54,6 @@ const ChatSection = ({ source, sources, setSources }: ChatSectionProps) => {
       timestamp: new Date()
     };
 
-    // Add user message
     setSources(prev => prev.map(s => 
       s.id === source.id 
         ? { ...s, chatHistory: [...(s.chatHistory || []), userMessage] }
@@ -49,7 +63,6 @@ const ChatSection = ({ source, sources, setSources }: ChatSectionProps) => {
     setMessage('');
     setIsLoading(true);
 
-    // Simulate AI response
     setTimeout(() => {
       const aiResponse: ChatMessage = {
         id: crypto.randomUUID(),
@@ -93,69 +106,78 @@ const ChatSection = ({ source, sources, setSources }: ChatSectionProps) => {
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Chat History */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4" ref={messagesEndRef}>
-        {/* Chat Messages */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {source.chatHistory && source.chatHistory.length > 0 ? (
           source.chatHistory.map((msg) => (
             <div
               key={msg.id}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in duration-300`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[75%] rounded-lg px-5 py-3.5 ${
                   msg.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card border border-border shadow-sm'
+                    ? 'bg-muted text-foreground'
+                    : 'bg-transparent text-foreground'
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
               </div>
             </div>
           ))
         ) : (
-          <div className="flex flex-wrap gap-2 justify-center">
-            {suggestedQuestions.map((question, idx) => (
-              <Button
-                key={idx}
-                variant="outline"
-                size="sm"
-                onClick={() => handleSuggestedQuestion(question)}
-                className="rounded-full"
-              >
-                {question}
-              </Button>
-            ))}
+          <div className="flex flex-col items-center justify-center h-full px-4">
+            <div className="text-center max-w-md space-y-6">
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-muted-foreground" />
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {suggestedQuestions.map((question, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSuggestedQuestion(question)}
+                    className="w-full text-left px-4 py-3 rounded-lg border border-border hover:bg-muted/50 transition-colors text-sm text-foreground"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
         
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-card border border-border rounded-2xl px-4 py-3 shadow-sm">
-              <Loader2 className="h-4 w-4 animate-spin" />
+          <div className="flex justify-start animate-in fade-in duration-200">
+            <div className="bg-transparent rounded-lg px-5 py-3.5">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           </div>
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-border p-4 bg-card">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-2 text-xs text-muted-foreground text-center">
-            Based on {sources.length} {sources.length === 1 ? 'source' : 'sources'}
+      <div className="border-t border-border p-4 bg-background">
+        <div className="max-w-3xl mx-auto">
+          <div className="mb-3 text-xs text-muted-foreground text-center">
+            Chat with {sources.length} {sources.length === 1 ? 'source' : 'sources'}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-end">
             <Input
-              placeholder={`Ask anything about ${source.name}...`}
+              placeholder="Ask a follow up question..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 min-h-[44px] rounded-full bg-muted border-0 focus-visible:ring-1 focus-visible:ring-ring px-5"
             />
             <Button 
               onClick={handleSendMessage} 
               disabled={!message.trim() || isLoading}
               size="icon"
+              className="rounded-full h-[44px] w-[44px] bg-primary hover:bg-primary/90 shrink-0"
             >
               <Send className="h-4 w-4" />
             </Button>

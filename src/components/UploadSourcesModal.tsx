@@ -4,7 +4,24 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { X, Upload, Link as LinkIcon, FileText, FolderOpen } from 'lucide-react';
-import { Source } from '@/pages/Index';
+
+/**
+ * Local Source type used by UploadSourcesModal.
+ * Adjust fields here if the Source shape changes elsewhere in your app.
+ */
+interface Source {
+  id: string;
+  type: 'file' | 'link' | 'note';
+  name: string;
+  content: string;
+  preview?: string;
+  timestamp: Date;
+  fileType?: string;
+  fileSize?: number;
+  url?: string;
+  chatHistory: any[];
+}
+
 import { useToast } from '@/hooks/use-toast';
 
 interface UploadSourcesModalProps {

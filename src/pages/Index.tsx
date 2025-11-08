@@ -1,178 +1,116 @@
-import { useState, useEffect } from 'react';
-import SourcesPanel from '@/components/SourcesPanel';
-import ContentPanel from '@/components/ContentPanel';
-import AgentsPanel from '@/components/AgentsPanel';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Grid3x3, Settings, Menu } from 'lucide-react';
+import SourcesPanel from '@/components/SourcesPanel';
+import AgentsPanel from '@/components/AgentsPanel';
+import ChatSection from '@/components/ChatSection';
+import { FileText, Bot, Upload } from 'lucide-react';
 
-export type SourceType = 'note' | 'link' | 'file';
-
-export interface Source {
+interface Source {
   id: string;
-  type: SourceType;
   name: string;
+  type: string;
   content: string;
   preview?: string;
-  timestamp: Date;
-  url?: string;
-  fileType?: string;
-  fileSize?: number;
-  chatHistory?: ChatMessage[];
-}
-
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
+  chatHistory?: any[];
 }
 
 const Index = () => {
   const [sources, setSources] = useState<Source[]>([]);
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
-  const [notebookTitle, setNotebookTitle] = useState('Untitled notebook');
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [showSourcesPanel, setShowSourcesPanel] = useState(true);
   const [showAgentsPanel, setShowAgentsPanel] = useState(true);
-
-  // Load from localStorage
-  useEffect(() => {
-    const savedSources = localStorage.getItem('notebookSources');
-    const savedTitle = localStorage.getItem('notebookTitle');
-    
-    if (savedSources) {
-      const parsed = JSON.parse(savedSources);
-      setSources(parsed.map((s: any) => ({
-        ...s,
-        timestamp: new Date(s.timestamp),
-        chatHistory: s.chatHistory?.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        })) || []
-      })));
-    }
-    
-    if (savedTitle) {
-      setNotebookTitle(savedTitle);
-    }
-  }, []);
-
-  // Save to localStorage
-  useEffect(() => {
-    if (sources.length > 0) {
-      localStorage.setItem('notebookSources', JSON.stringify(sources));
-    }
-  }, [sources]);
-
-  useEffect(() => {
-    localStorage.setItem('notebookTitle', notebookTitle);
-  }, [notebookTitle]);
+  const [showUploadModal, setShowUploadModal] = useState(false); 
 
   const selectedSource = sources.find(s => s.id === selectedSourceId);
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Header */}
-      <header className="h-14 bg-[hsl(var(--header-bg))] text-[hsl(var(--header-fg))] border-b border-border flex items-center justify-between px-4">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 text-primary">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-              </svg>
-            </div>
-            <span className="text-sm font-semibold">NotebookLM</span>
-          </div>
-          <div className="w-px h-6 bg-border/30" />
-          {isEditingTitle ? (
-            <input
-              type="text"
-              value={notebookTitle}
-              onChange={(e) => setNotebookTitle(e.target.value)}
-              onBlur={() => setIsEditingTitle(false)}
-              onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
-              className="text-sm font-medium bg-transparent border-b border-primary outline-none px-1 text-foreground"
-              autoFocus
-            />
-          ) : (
-            <button
-              onClick={() => setIsEditingTitle(true)}
-              className="text-sm font-medium hover:opacity-80 transition-opacity"
-            >
-              {notebookTitle}
-            </button>
-          )}
+    <div className="flex h-screen w-full bg-background">
+      {/* Sources Panel */}
+      {showSourcesPanel && (
+        <div className="w-80 border-r border-finbyz-border shadow-xl">
+          <SourcesPanel
+            sources={sources}
+            setSources={setSources}
+            selectedSourceId={selectedSourceId}
+            setSelectedSourceId={setSelectedSourceId}
+            onTogglePanel={() => setShowSourcesPanel(false)}
+            showUploadModal={showUploadModal}          // ADD THIS LINE
+           setShowUploadModal={setShowUploadModal}    
+          />
         </div>
-        
-        <div className="flex items-center gap-3">
-          <span className="text-xs opacity-70">All changes saved</span>
-          <Button variant="ghost" size="sm" className="text-[hsl(var(--header-fg))] hover:bg-white/10">
-            Share
-          </Button>
-          <Button variant="ghost" size="icon" className="text-[hsl(var(--header-fg))] hover:bg-white/10">
-            <Settings className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-[hsl(var(--header-fg))] hover:bg-white/10">
-            <Grid3x3 className="h-4 w-4" />
-          </Button>
-          <div className="w-8 h-8 bg-[#FF6B35] rounded-full flex items-center justify-center text-white text-sm font-medium">
-            U
-          </div>
-        </div>
-      </header>
+      )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sources Panel */}
-        {showSourcesPanel && (
-          <div className="w-[280px] border-r border-border bg-card flex-shrink-0">
-            <SourcesPanel
-              sources={sources}
-              setSources={setSources}
-              selectedSourceId={selectedSourceId}
-              setSelectedSourceId={setSelectedSourceId}
-              onTogglePanel={() => setShowSourcesPanel(false)}
-            />
-          </div>
-        )}
-
-        {/* Content Panel */}
-        <div className="flex-1 overflow-hidden">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Bar */}
+        <div className="h-16 border-b border-finbyz-border bg-white/80 backdrop-blur-sm shadow-sm flex items-center px-6 gap-4">
           {!showSourcesPanel && (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setShowSourcesPanel(true)}
-              className="m-2"
+              className="bg-finbyz-orange/10 hover:bg-finbyz-orange/20 text-finbyz-orange rounded-xl"
             >
-              <Menu className="h-4 w-4" />
+              <FileText className="h-5 w-5" />
             </Button>
           )}
-          <ContentPanel
-            selectedSource={selectedSource}
-            sources={sources}
-            setSources={setSources}
-          />
+          {!showAgentsPanel && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowAgentsPanel(true)}
+              className="bg-finbyz-orange/10 hover:bg-finbyz-orange/20 text-finbyz-orange rounded-xl ml-auto"
+            >
+              <Bot className="h-5 w-5" />
+            </Button>
+          )}
+       
         </div>
 
-        {/* Agents Panel */}
-        {showAgentsPanel && (
-          <div className="w-[320px] border-l border-border bg-card flex-shrink-0">
-            <AgentsPanel onTogglePanel={() => setShowAgentsPanel(false)} />
-          </div>
-        )}
-        
-        {!showAgentsPanel && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowAgentsPanel(true)}
-            className="absolute top-20 right-2"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
-        )}
+        {/* Chat Area */}
+        <div className="flex-1">
+          {selectedSource ? (
+            <ChatSection
+              source={selectedSource}
+              sources={sources}
+              setSources={setSources}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full bg-gradient-to-b from-finbyz-bg-light to-background">
+              <div className="text-center px-6">
+                <div className="w-32 h-32 bg-gradient-to-br from-finbyz-orange/20 to-finbyz-orange-light/20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl hover:scale-105 transition-transform">
+                  <Upload className="w-16 h-16 text-finbyz-orange" />
+                </div>
+                <h2 className="text-3xl font-bold text-finbyz-text-dark mb-3">
+                  Add a source to get started
+                </h2>
+                <p className="text-finbyz-text-gray max-w-md mx-auto mb-8">
+                  Upload a source document to start chatting with AI and extract intelligent insights
+                </p>
+                
+                {/* Upload Button Added */}
+                <Button
+                   onClick={() => {
+    setShowSourcesPanel(true);
+    setShowUploadModal(true);  // CHANGE THIS - remove the old onClick code
+  }}
+                  className="bg-finbyz-orange hover:bg-finbyz-orange-dark text-white font-semibold px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                >
+                  <Upload className="mr-3 h-6 w-6" />
+                  Add Your First Source
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Agents Panel */}
+      {showAgentsPanel && (
+        <div className="w-80 border-l border-finbyz-border shadow-xl">
+          <AgentsPanel onTogglePanel={() => setShowAgentsPanel(false)} />
+        </div>
+      )}
     </div>
   );
 };

@@ -57,6 +57,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        finbyz: {
+          orange: "hsl(var(--finbyz-orange))",
+          "orange-light": "hsl(var(--finbyz-orange-light))",
+          "orange-dark": "hsl(var(--finbyz-orange-dark))",
+          "text-dark": "hsl(var(--finbyz-text-dark))",
+          "text-gray": "hsl(var(--finbyz-text-gray))",
+          "bg-light": "hsl(var(--finbyz-bg-light))",
+          border: "hsl(var(--finbyz-border))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
